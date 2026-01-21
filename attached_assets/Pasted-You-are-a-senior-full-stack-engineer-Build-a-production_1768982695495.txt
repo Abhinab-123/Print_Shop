@@ -1,0 +1,143 @@
+You are a senior full-stack engineer.
+
+Build a production-ready, privacy-first QR-based printing web application
+with TWO interfaces: one for users (no login) and one for print shop admins (login required).
+
+========================
+CORE REQUIREMENTS
+========================
+
+1. OVERALL CONCEPT
+- The app is used inside a print shop.
+- A QR code opens a public web page for users to upload documents for printing.
+- Users do NOT create accounts and do NOT share personal data.
+- Print shop admins have a protected dashboard to manage print jobs.
+
+========================
+USER INTERFACE (NO LOGIN)
+========================
+
+Route: /print
+
+User flow:
+1. User scans QR code → opens /print
+2. User uploads a document:
+   - Supported formats: PDF, DOC, DOCX, PPT, PPTX
+3. User enters an OPTIONAL display name (alias) to identify their print in a crowd
+   - Example: "Abhi", "CS Student"
+   - Max length: 20 characters
+4. User selects print options:
+   - Color or Black & White
+   - Number of copies
+   - Page range (optional)
+5. User submits the job
+6. System generates:
+   - Unique Job ID / Token
+   - Confirmation screen showing job name + token
+7. No login, no email, no phone number, no tracking
+
+Privacy rules:
+- Display name is optional
+- Files are temporary
+- Files are auto-deleted after printing or after a fixed time (e.g. 30–60 minutes)
+
+========================
+ADMIN INTERFACE (LOGIN REQUIRED)
+========================
+
+Routes:
+- /admin/login
+- /admin/dashboard
+
+Admin features:
+1. Admin login using username + password
+2. Protected routes using JWT or session authentication
+3. Dashboard shows a real-time list of print jobs:
+   - Display name (if provided)
+   - Job ID
+   - Print options
+   - Status (PENDING / PRINTING / COMPLETED)
+4. Admin can:
+   - Download the uploaded file
+   - Mark job as PRINTING or COMPLETED
+   - Trigger file deletion after completion
+
+Security:
+- Only admin routes require authentication
+- User routes are public
+- Admin cannot access user UI without login
+
+========================
+BACKEND REQUIREMENTS
+========================
+
+Tech stack:
+- Backend: FastAPI (Python)
+- Database: SQLite (MVP) or PostgreSQL
+- ORM: SQLAlchemy
+- Authentication: JWT for admin only
+- File storage: temporary storage (local or cloud free tier)
+
+API endpoints (example):
+- POST /api/upload
+- GET /api/job/{job_id}
+- POST /api/admin/login
+- GET /api/admin/jobs
+- POST /api/admin/job/{id}/complete
+
+Data model (PrintJob):
+- id
+- display_name (nullable)
+- file_url
+- file_type
+- print_options (color, copies, pages)
+- status
+- created_at
+- expires_at
+
+Include:
+- Input validation
+- Secure file handling
+- Auto-cleanup background task
+
+========================
+FRONTEND REQUIREMENTS
+========================
+
+Tech stack:
+- React or Next.js
+- Tailwind CSS
+- Mobile-first UI for users
+- Desktop-friendly UI for admin
+
+Pages:
+- User upload page
+- User confirmation page
+- Admin login page
+- Admin dashboard page
+
+========================
+DEPLOYMENT
+========================
+
+- Must be deployable on free tiers
+- Separate frontend and backend
+- Environment variables for secrets
+- Ready for demo and portfolio use
+
+========================
+DELIVERABLES
+========================
+
+1. Project folder structure
+2. Backend code (FastAPI)
+3. Frontend code (React)
+4. Database schema
+5. Authentication logic
+6. Clear setup instructions
+
+IMPORTANT:
+- Do NOT add user login
+- Do NOT collect personal data
+- Keep the system simple, secure, and realistic
+- Write clean, readable, commented code
