@@ -130,13 +130,16 @@ export async function registerRoutes(
 
 // Seed initial admin user
 export async function seedDatabase() {
-  const existingAdmin = await storage.getUserByUsername("admin");
-  if (!existingAdmin) {
-    // For MVP, simple hardcoded password. In prod, use bcrypt hash.
-    // NOTE: In the auth.ts file we'll implement simple hashing or comparison.
-    await storage.createUser({
-      username: "admin",
-      password: "password123" // Change this!
-    });
+  const adminUsers = [
+    { username: "admin", password: "password123" },
+    { username: "shop_manager", password: "manager_password" }
+  ];
+
+  for (const adminData of adminUsers) {
+    const existingUser = await storage.getUserByUsername(adminData.username);
+    if (!existingUser) {
+      await storage.createUser(adminData);
+      console.log(`Seeded user: ${adminData.username}`);
+    }
   }
 }
