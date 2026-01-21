@@ -55,7 +55,10 @@ export default function AdminDashboard() {
 
   const handleView = (id: number) => {
     const url = buildUrl(api.jobs.download.path, { id }) + "?inline=true";
-    window.open(url, "_blank");
+    const win = window.open("about:blank", "_blank");
+    if (win) {
+      win.location.href = url;
+    }
   };
 
   return (

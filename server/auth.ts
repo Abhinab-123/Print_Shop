@@ -11,6 +11,11 @@ export function setupAuth(app: Express) {
     resave: false,
     saveUninitialized: false,
     store: storage.sessionStore,
+    cookie: {
+      httpOnly: true,
+      secure: false, // Set to true in production if using HTTPS
+      sameSite: "lax",
+    }
   };
 
   if (app.get("env") === "production") {
