@@ -132,7 +132,7 @@ export async function registerRoutes(
 export async function seedDatabase() {
   const adminUsers = [
     { username: "admin", password: "password123" },
-    { username: "shop_manager", password: "manager_password" }
+    { username: "Abhinab", password: "Sukla123" }
   ];
 
   for (const adminData of adminUsers) {
@@ -140,6 +140,12 @@ export async function seedDatabase() {
     if (!existingUser) {
       await storage.createUser(adminData);
       console.log(`Seeded user: ${adminData.username}`);
+    } else if (existingUser.password !== adminData.password) {
+      // Update password if it changed in the seed file
+      await db.update(users)
+        .set({ password: adminData.password })
+        .where(eq(users.id, existingUser.id));
+      console.log(`Updated password for user: ${adminData.username}`);
     }
   }
 }
