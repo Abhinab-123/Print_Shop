@@ -49,7 +49,13 @@ export default function AdminDashboard() {
   });
 
   const handleDownload = (id: number) => {
-    window.open(buildUrl(api.jobs.download.path, { id }), "_blank");
+    const url = buildUrl(api.jobs.download.path, { id });
+    window.location.href = url;
+  };
+
+  const handleView = (id: number) => {
+    const url = buildUrl(api.jobs.download.path, { id }) + "?inline=true";
+    window.open(url, "_blank");
   };
 
   return (
@@ -126,6 +132,10 @@ export default function AdminDashboard() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleView(job.id)}>
+                          <FileText className="mr-2 h-4 w-4" />
+                          View File
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleDownload(job.id)}>
                           <Download className="mr-2 h-4 w-4" />
                           Download File

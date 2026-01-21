@@ -125,7 +125,18 @@ export async function registerRoutes(
     }
 
     const filePath = path.join(uploadDir, job.filePath);
-    res.download(filePath, job.originalFilename);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ message: 'File not found on disk' });
+    }
+
+    const inline = req.query.inline === 'true';
+    if (inline) {
+      res.setHeader('Content-Type', job.fileType);
+      res.setHeader('Content-Disposition', `inline; filename="${job.originalFilename}"`);
+      fs.createReadStream(filePath).pipe(res);
+    } else {
+      res.download(filePath, job.originalFilename);
+    }
   });
 
   return httpServer;
