@@ -29,11 +29,11 @@ export default function PublicPrint() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file) return;
+    if (!file || !displayName) return;
 
     const formData = new FormData();
     formData.append("file", file);
-    if (displayName) formData.append("displayName", displayName);
+    formData.append("displayName", displayName);
     formData.append("copies", String(copies));
     formData.append("isColor", String(isColor));
     if (pageRange) formData.append("pageRange", pageRange);
@@ -67,6 +67,21 @@ export default function PublicPrint() {
         <Card className="p-6 sm:p-8 shadow-xl border-border/60 bg-card/50 backdrop-blur-sm">
           <form onSubmit={handleSubmit} className="space-y-6">
             
+            {/* Name Input */}
+            <div className="space-y-2">
+              <Label htmlFor="displayName" className="text-base font-medium">Your Name</Label>
+              <Input 
+                id="displayName" 
+                placeholder="Enter your name (mandatory)" 
+                required
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="bg-background h-12 text-lg"
+              />
+            </div>
+
+            <Separator />
+
             {/* File Upload Area */}
             <div className="space-y-2">
               <Label htmlFor="file-upload" className="text-base font-medium">Select Document</Label>
@@ -119,17 +134,15 @@ export default function PublicPrint() {
               </div>
 
               <div className="space-y-3">
-                <div className="flex justify-between">
-                  <Label className="text-base">Copies</Label>
-                  <span className="font-mono text-sm bg-secondary px-2 py-0.5 rounded">{copies}</span>
-                </div>
-                <Slider
-                  value={[copies]}
-                  onValueChange={(v) => setCopies(v[0])}
+                <Label htmlFor="copies" className="text-base">Number of Copies</Label>
+                <Input
+                  id="copies"
+                  type="number"
                   min={1}
-                  max={50}
-                  step={1}
-                  className="py-2"
+                  max={999}
+                  value={copies}
+                  onChange={(e) => setCopies(parseInt(e.target.value) || 1)}
+                  className="bg-background h-12 text-lg"
                 />
               </div>
             </div>
@@ -138,19 +151,9 @@ export default function PublicPrint() {
             <details className="group">
               <summary className="flex items-center gap-2 cursor-pointer text-sm font-medium text-muted-foreground hover:text-foreground transition-colors list-none">
                 <Settings className="w-4 h-4" />
-                Advanced Options (Page Range, Name)
+                Advanced Options (Page Range)
               </summary>
               <div className="pt-4 space-y-4 animate-accordion-down">
-                <div className="space-y-2">
-                  <Label htmlFor="displayName">Your Name (Optional)</Label>
-                  <Input 
-                    id="displayName" 
-                    placeholder="e.g. John Doe" 
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    className="bg-background"
-                  />
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="pageRange">Page Range (Optional)</Label>
                   <Input 
@@ -167,7 +170,7 @@ export default function PublicPrint() {
             <Button 
               type="submit" 
               className="w-full h-12 text-lg font-semibold rounded-xl shadow-lg shadow-primary/20"
-              disabled={!file || isPending}
+              disabled={!file || !displayName || isPending}
             >
               {isPending ? (
                 <>
