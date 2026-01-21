@@ -56,28 +56,31 @@ export async function registerRoutes(
 
   // --- Public Routes ---
 
-  app.post(api.jobs.create.path, upload.single('file'), async (req, res) => {
+  app.post(api.jobs.create.path, upload.array('files'), async (req, res) => {
     try {
-      if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
+      const files = req.files as Express.Multer.File[];
+      if (!files || files.length === 0) {
+        return res.status(400).json({ message: "No files uploaded" });
       }
 
-      // Multer processes the file, other fields are in req.body
-      // We need to parse fields manually or use schema to validate after
-      
-      const jobData = {
-        displayName: req.body.displayName || undefined,
-        isColor: req.body.isColor === 'true',
-        copies: parseInt(req.body.copies || '1'),
-        pageRange: req.body.pageRange || undefined,
-        filePath: req.file.filename, // Store filename, not full path
-        originalFilename: req.file.originalname,
-        fileType: req.file.mimetype,
-        fileSize: req.file.size
-      };
+      const results = [];
+      for (const file of files) {
+        const jobData = {
+          displayName: req.body.displayName || undefined,
+          isColor: req.body.isColor === 'true',
+          copies: parseInt(req.body.copies || '1'),
+          pageRange: req.body.pageRange || undefined,
+          filePath: file.filename,
+          originalFilename: file.originalname,
+          fileType: file.mimetype,
+          fileSize: file.size
+        };
 
-      const job = await storage.createJob(jobData);
-      res.status(201).json(job);
+        const job = await storage.createJob(jobData);
+        results.push(job);
+      }
+      
+      res.status(201).json(results);
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Internal server error" });

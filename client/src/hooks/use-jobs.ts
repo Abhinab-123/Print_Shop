@@ -67,12 +67,17 @@ export function useCreateJob() {
 
       if (!res.ok) {
         if (res.status === 400) {
-          const error = api.jobs.create.responses[400].parse(await res.json());
-          throw new Error(error.message);
+          const error = await res.json();
+          throw new Error(error.message || "Upload failed");
         }
         throw new Error("Upload failed");
       }
-      return api.jobs.create.responses[201].parse(await res.json());
+      const data = await res.json();
+      // Handle both single and array response
+      if (Array.isArray(data)) {
+        return data.map(item => api.jobs.create.responses[201].parse(item))[0];
+      }
+      return api.jobs.create.responses[201].parse(data);
     },
     onError: (error) => {
       toast({ 

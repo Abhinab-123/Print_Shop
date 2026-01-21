@@ -15,24 +15,26 @@ export default function PublicPrint() {
   const [, setLocation] = useLocation();
   const { mutate: createJob, isPending } = useCreateJob();
   
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [displayName, setDisplayName] = useState("");
   const [copies, setCopies] = useState(1);
   const [isColor, setIsColor] = useState(false);
   const [pageRange, setPageRange] = useState("");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+    if (e.target.files) {
+      setFiles(Array.from(e.target.files));
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file || !displayName) return;
+    if (files.length === 0 || !displayName) return;
 
     const formData = new FormData();
-    formData.append("file", file);
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
     formData.append("displayName", displayName);
     formData.append("copies", String(copies));
     formData.append("isColor", String(isColor));
@@ -40,7 +42,10 @@ export default function PublicPrint() {
 
     createJob(formData, {
       onSuccess: (data) => {
-        setLocation(`/print/success/${data.id}`);
+        // Since we now create multiple jobs, the response might be an array
+        // For simplicity, we navigate to the dashboard or first job success
+        const id = Array.isArray(data) ? data[0].id : data.id;
+        setLocation(`/print/success/${id}`);
       }
     });
   };
@@ -89,6 +94,7 @@ export default function PublicPrint() {
                 <Input
                   id="file-upload"
                   type="file"
+                  multiple
                   onChange={handleFileChange}
                   accept=".pdf,.doc,.docx,.ppt,.pptx"
                   className="hidden"
@@ -96,22 +102,26 @@ export default function PublicPrint() {
                 <label
                   htmlFor="file-upload"
                   className={`
-                    flex flex-col items-center justify-center w-full h-32 
+                    flex flex-col items-center justify-center w-full min-h-32 py-4
                     border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200
                     hover:border-primary hover:bg-primary/5
-                    ${file ? 'border-primary bg-primary/5' : 'border-input bg-background'}
+                    ${files.length > 0 ? 'border-primary bg-primary/5' : 'border-input bg-background'}
                   `}
                 >
-                  {file ? (
-                    <div className="flex items-center gap-3 text-primary px-4">
-                      <FileText className="w-6 h-6 shrink-0" />
-                      <span className="font-medium truncate max-w-[200px]">{file.name}</span>
-                      <Check className="w-4 h-4 ml-2 text-green-500" />
+                  {files.length > 0 ? (
+                    <div className="flex flex-col gap-2 w-full px-4">
+                      {files.map((file, index) => (
+                        <div key={index} className="flex items-center gap-3 text-primary">
+                          <FileText className="w-5 h-5 shrink-0" />
+                          <span className="font-medium truncate flex-1 text-sm">{file.name}</span>
+                          <Check className="w-4 h-4 text-green-500" />
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     <div className="flex flex-col items-center text-muted-foreground group-hover:text-primary">
                       <Upload className="w-8 h-8 mb-2" />
-                      <span className="text-sm font-medium">Click to upload PDF or DOCX</span>
+                      <span className="text-sm font-medium">Click to upload multiple files</span>
                     </div>
                   )}
                 </label>
@@ -170,7 +180,7 @@ export default function PublicPrint() {
             <Button 
               type="submit" 
               className="w-full h-12 text-lg font-semibold rounded-xl shadow-lg shadow-primary/20"
-              disabled={!file || !displayName || isPending}
+              disabled={files.length === 0 || !displayName || isPending}
             >
               {isPending ? (
                 <>
@@ -178,7 +188,7 @@ export default function PublicPrint() {
                   Uploading...
                 </>
               ) : (
-                "Send to Printer"
+                `Send ${files.length} ${files.length === 1 ? 'File' : 'Files'} to Printer`
               )}
             </Button>
           </form>
