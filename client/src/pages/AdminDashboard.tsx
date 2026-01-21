@@ -48,16 +48,48 @@ export default function AdminDashboard() {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
-  const handleDownload = (id: number) => {
+  const handleDownload = async (id: number) => {
     const url = buildUrl(api.jobs.download.path, { id });
-    window.location.href = url;
+    try {
+      const response = await fetch(url, { credentials: "include" });
+      if (response.ok) {
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = 'download';
+        if (contentDisposition && contentDisposition.indexOf('filename=') !== -1) {
+          filename = contentDisposition.split('filename=')[1].replace(/"/g, '');
+        }
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(downloadUrl);
+      } else if (response.status === 401) {
+        setLocation("/admin/login");
+      }
+    } catch (error) {
+      console.error("Download failed", error);
+    }
   };
 
-  const handleView = (id: number) => {
+  const handleView = async (id: number) => {
     const url = buildUrl(api.jobs.download.path, { id }) + "?inline=true";
-    const win = window.open("about:blank", "_blank");
-    if (win) {
-      win.location.href = url;
+    try {
+      const response = await fetch(url, { credentials: "include" });
+      if (response.ok) {
+        const blob = await response.blob();
+        const contentType = response.headers.get('Content-Type') || 'application/pdf';
+        const viewBlob = new Blob([blob], { type: contentType });
+        const viewUrl = window.URL.createObjectURL(viewBlob);
+        window.open(viewUrl, "_blank");
+      } else if (response.status === 401) {
+        setLocation("/admin/login");
+      }
+    } catch (error) {
+      console.error("View failed", error);
     }
   };
 
