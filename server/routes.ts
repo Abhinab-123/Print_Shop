@@ -66,7 +66,7 @@ export async function registerRoutes(
       const results = [];
       for (const file of files) {
         const jobData = {
-          displayName: req.body.displayName || undefined,
+          displayName: req.body.displayName || "Anonymous",
           isColor: req.body.isColor === 'true',
           copies: parseInt(req.body.copies || '1'),
           pageRange: req.body.pageRange || undefined,

@@ -29,13 +29,13 @@ export default function PublicPrint() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (files.length === 0 || !displayName) return;
+    if (files.length === 0) return;
 
     const formData = new FormData();
     files.forEach((file) => {
       formData.append("files", file);
     });
-    formData.append("displayName", displayName);
+    if (displayName) formData.append("displayName", displayName);
     formData.append("copies", String(copies));
     formData.append("isColor", String(isColor));
     if (pageRange) formData.append("pageRange", pageRange);
@@ -74,11 +74,10 @@ export default function PublicPrint() {
             
             {/* Name Input */}
             <div className="space-y-2">
-              <Label htmlFor="displayName" className="text-base font-medium">Your Name</Label>
+              <Label htmlFor="displayName" className="text-base font-medium">Your Name (Optional)</Label>
               <Input 
                 id="displayName" 
-                placeholder="Enter your name (mandatory)" 
-                required
+                placeholder="Enter your name" 
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 className="bg-background h-12 text-lg"
@@ -180,7 +179,7 @@ export default function PublicPrint() {
             <Button 
               type="submit" 
               className="w-full h-12 text-lg font-semibold rounded-xl shadow-lg shadow-primary/20"
-              disabled={files.length === 0 || !displayName || isPending}
+              disabled={files.length === 0 || isPending}
             >
               {isPending ? (
                 <>

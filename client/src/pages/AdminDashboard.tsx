@@ -153,7 +153,16 @@ export default function AdminDashboard() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <StatusBadge status={job.status as any} />
+                    <Button 
+                      variant="ghost" 
+                      className="p-0 hover:bg-transparent"
+                      onClick={() => updateStatus({ 
+                        id: job.id, 
+                        status: job.status === "PENDING" ? "COMPLETED" : "PENDING" 
+                      })}
+                    >
+                      <StatusBadge status={job.status as any} />
+                    </Button>
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-muted-foreground text-sm">
                     {format(new Date(job.createdAt), "MMM d, h:mm a")}
@@ -177,16 +186,16 @@ export default function AdminDashboard() {
                         </DropdownMenuItem>
                         
                         {job.status === "PENDING" && (
-                          <DropdownMenuItem onClick={() => updateStatus({ id: job.id, status: "PRINTING" })}>
-                            <Printer className="mr-2 h-4 w-4" />
-                            Mark Printing
+                          <DropdownMenuItem onClick={() => updateStatus({ id: job.id, status: "COMPLETED" })}>
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                            Mark Printed
                           </DropdownMenuItem>
                         )}
                         
-                        {job.status === "PRINTING" && (
-                          <DropdownMenuItem onClick={() => updateStatus({ id: job.id, status: "COMPLETED" })}>
-                            <CheckCircle className="mr-2 h-4 w-4" />
-                            Mark Completed
+                        {job.status === "COMPLETED" && (
+                          <DropdownMenuItem onClick={() => updateStatus({ id: job.id, status: "PENDING" })}>
+                            <Printer className="mr-2 h-4 w-4" />
+                            Mark Pending
                           </DropdownMenuItem>
                         )}
 

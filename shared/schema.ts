@@ -14,7 +14,7 @@ export const users = pgTable("users", {
 // Print jobs
 export const printJobs = pgTable("print_jobs", {
   id: serial("id").primaryKey(),
-  displayName: text("display_name").notNull(), // Mandatory user alias
+  displayName: text("display_name"), // Optional user alias
   filePath: text("file_path").notNull(),
   originalFilename: text("original_filename").notNull(),
   fileType: text("file_type").notNull(),
