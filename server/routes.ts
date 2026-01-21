@@ -131,9 +131,17 @@ export async function registerRoutes(
 
     const inline = req.query.inline === 'true';
     if (inline) {
-      res.setHeader('Content-Type', job.fileType);
-      res.setHeader('Content-Disposition', `inline; filename="${job.originalFilename}"`);
-      fs.createReadStream(filePath).pipe(res);
+      // PDF can be viewed inline, other types usually download or need browser plugins
+      // For office docs, we might just force download as browsers can't native render them
+      const isViewable = job.fileType === 'application/pdf' || job.fileType.startsWith('image/') || job.fileType.startsWith('text/');
+      
+      if (isViewable) {
+        res.setHeader('Content-Type', job.fileType);
+        res.setHeader('Content-Disposition', 'inline');
+        fs.createReadStream(filePath).pipe(res);
+      } else {
+        res.download(filePath, job.originalFilename);
+      }
     } else {
       res.download(filePath, job.originalFilename);
     }
